@@ -1,0 +1,60 @@
+<!DOCTYPE html >
+<html>
+  <head>
+    <title>Key generator</title>
+    <style>
+      body {
+        max-width: 700px;
+        margin: auto;
+        margin-top: 100px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Logging key generator</h1>
+
+    <p>
+      With this tool, you can create a keypair for logging and retrieving the log files. When
+      an activity is launched, a logging key can be specified. All the activities launched
+      with the same logging key will save the submitted logs to the same logging store.
+      It is possible to download all the logs from the specific logging store by using
+      the secret key.
+    </p>
+
+    <p>
+      You can use the same logging key for all activities or you can create one key for
+      each class etc.
+    </p>
+
+    <h2>Public logging key</h2>
+    <p>
+      Use the public logging key below when launching activities from Acos. The key should
+      be in the launching request as a GET parameter <code>logkey</code>. For example,
+      <em>{{ host }}html/coding/ex1?logkey=123456</em>.
+    </p>
+    <p>
+      Public key: <code>{{ publicKey }}</code>
+    </p>
+
+    <h2>Secret logging key</h2>
+    <p>
+      To download the collected log files, visit the URL <em>{{ host }}logs/SECRETKEY</em>
+      and a zip file containing all the logs will be generated. Replace <em>SECRETKEY</em>
+      with the correct key that is shown below.
+    </p>
+
+    <p>
+      Secret key: <code>{{ secretKey }}</code>
+    </p>
+
+    <p>
+      <strong>Important!</strong> Do not lose this secret key or otherwise you are not able to
+      download the collected logs.
+    <p>
+
+    <form method="post">
+      <button type="submit">Generate new</button>
+    </form>
+
+  </body>
+</html>

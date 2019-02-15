@@ -1,0 +1,27 @@
+<script> 
+  $(document).ready(function(){
+      
+    parson = new ParsonsWidget({
+      "sortableId": "sortable",
+      "trashId": "sortableTrash",
+      "max_wrong_lines": 1,
+      "feedback_cb" : function(){ }
+    });
+      
+    parson.init('{{initial}}');
+    parson.shuffleLines();
+    
+    $("#newInstanceLink").click(function(event){
+       event.preventDefault();
+       parson.shuffleLines();
+    });
+    
+    $("#feedbackLink").click(function(event){
+      event.preventDefault();
+      var fb = parson.getFeedback();
+      parsonsGrade(fb);
+      displayErrors(fb);
+    });
+
+  });
+</script>

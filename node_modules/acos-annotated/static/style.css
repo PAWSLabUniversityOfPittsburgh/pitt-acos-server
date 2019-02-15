@@ -1,0 +1,78 @@
+.annotated-line-number, .annotated-line-code, .annotated-line-button, .annotated-line-toggle {
+  display: inline-block;
+}
+.annotated-line-number {
+  min-width: 40px;
+  padding-left: 10px;
+}
+.annotated-line-toggle {
+  min-width: 25px;
+}
+div.annotated-example > div {
+  margin-bottom: 3px;
+}
+div.annotated-example div.annotated-description {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 12pt;
+  margin-bottom: 20px;
+}
+div.annotated-comment {
+  margin-left: 40px;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 12pt;
+  background-color: #FCF3B8;
+  padding: 5px;
+  -webkit-border-radius: 3;
+  -moz-border-radius: 3;
+  border-radius: 3px;
+}
+div.annotated-line-toggle div {
+  display: inline-block;
+  cursor: pointer;
+  width: 100%;
+  background: #84c98e;
+  background-image: -webkit-linear-gradient(top, #84c98e, #2b9610);
+  background-image: -moz-linear-gradient(top, #84c98e, #2b9610);
+  background-image: -ms-linear-gradient(top, #84c98e, #2b9610);
+  background-image: -o-linear-gradient(top, #84c98e, #2b9610);
+  background-image: linear-gradient(to bottom, #84c98e, #2b9610);
+  -webkit-border-radius: 6;
+  -moz-border-radius: 6;
+  border-radius: 6px;
+  font-family: Arial;
+  color: #ffffff;
+  font-size: 12pt;
+  padding: 3px 3px;
+  text-decoration: none;
+  text-align: center;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+div.annotated-line-toggle div:active {
+  border: none;
+}
+div.annotated-line-toggle div:hover {
+  background: #56e36b;
+  background-image: -webkit-linear-gradient(top, #56e36b, #4cb833);
+  background-image: -moz-linear-gradient(top, #56e36b, #4cb833);
+  background-image: -ms-linear-gradient(top, #56e36b, #4cb833);
+  background-image: -o-linear-gradient(top, #56e36b, #4cb833);
+  background-image: linear-gradient(to bottom, #56e36b, #4cb833);
+  text-decoration: none;
+}
+div.annotated-example div.annotated-line-code {
+  font-family: 'Inconsolata', monospace;
+  font-size: 12pt;
+  white-space: pre;
+}
+div.annotated-line-number {
+  font-family: 'Inconsolata', monospace;
+  font-size: 14pt;
+  font-weight: 700;
+  color: #9F9F9F;
+  margin-left: 6px;
+}

@@ -1,0 +1,66 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+ 
+    <h2>Installed tools</h2>    
+    <ul id="installed_tools">
+    {% for tool in tools %}
+        <li><a href="{{ tool }}">{{ tool }}</a></li>
+    {% endfor %}
+    </ul>
+    
+    <h2>Installed protocols</h2>
+    <ul  id="installed_protocols">
+    {% for protocol in protocols %}
+        <li>{{ protocol }}</li>
+    {% endfor %}
+    </ul>
+    
+    <h2>Installed content types</h2>
+    <ul id="installed_content_types">
+    {% for contentType in contentTypes %}
+        <li>{{ contentType }}</li>
+    {% endfor %}
+    </ul>
+    
+    <h2>Installed content packages</h2>
+    <div>
+        {% for contentPackage in contentPackages %}
+        <div class="contentPackage col-md-4">
+            
+            <h3 class="packageTitle bg-primary">{{ contentPackage.namespace }}</h3>
+            <div class="contentPackageMain">
+                <p>{{ contentPackage.meta.shortDescription }}</p>
+            
+            
+                <div class="teaserContent">
+                    <ul>        
+                    {% for ex in contentPackage.meta.teaserContent %}
+                        <li>
+                            <a href="/acos/html/{{ contentPackage.contentTypeNamespace }}/{{ contentPackage.namespace }}/{{ ex }}">
+                                {{ ex }}
+                           </a>
+                       </li>
+                    {% endfor %}
+                    </ul>
+                </div>                
+                <a href="#" class="js-showContent btn btn-xs btn-primary">Show All</a>
+                <div class="allContent">
+                    <ul>        
+                    {% for ex, content in contentPackage.meta.contents %}
+                        <li>
+                            <a href="/acos/html/{{ contentPackage.contentTypeNamespace }}/{{ contentPackage.namespace }}/{{ ex }}">
+                                {{ ex }}
+                           </a>
+                       </li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endfor %} 
+    </div>              
+    
+    <div style="clear: both; display: block;" class="footer">&nbsp;</div>
+    
+{% endblock %}

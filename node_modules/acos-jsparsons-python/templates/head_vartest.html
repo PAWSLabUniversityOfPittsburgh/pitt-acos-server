@@ -1,0 +1,31 @@
+<script> 
+  $(document).ready(function(){
+      
+    var vartests = {{vartests}};
+    parson = new ParsonsWidget({
+      "sortableId": "sortable",
+      "trashId": "sortableTrash",
+      "vartests": vartests,
+      "toggleTypeHandlers": {ab: ["<", ">"]}
+    });
+      
+    parson.init('{{initial}}');
+    parson.shuffleLines();
+    
+    $("#newInstanceLink").click(function(event){
+       event.preventDefault();
+       parson.shuffleLines();
+    });
+    
+    $("#feedbackLink").click(function(event){
+
+      event.preventDefault();
+      var fb = parson.getFeedback();
+      parsonsGrade(fb);
+      displayErrors(fb);
+      $("#unittest").html("<h2>Feedback from testing your program:</h2>" + fb.feedback);
+      if (fb.success) { alert("Good, you solved the assignment!"); }      
+    });
+
+  });
+</script>
