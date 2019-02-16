@@ -199,6 +199,8 @@ pitt_router.get(getUrlPrefix, function(req, res) {
 
 pitt_router.post(getUrlPrefix + '/event', handle_event);
 
+pitt_router.post('/ltiservice', (req, res) => console.log(req))
+
 
 function serve_content(req,res,resource_name) {
 	if (handlers.protocols[req.params.protocol] && handlers.contentTypes[req.params.contentType] && handlers.contentPackages[req.params.contentPackage]) {
@@ -601,10 +603,6 @@ api.get('/content/:contentType([a-zA-Z0-9_-]+)/:contentPackage([a-zA-Z0-9_-]+)/:
     res.status(404).json({ 'error': 'Unknown content item.' });
   }
 });
-
-
-api.post('/ltiservice', (req, res) => console.log(req))
-
 
 
 // ********************************************************************************
