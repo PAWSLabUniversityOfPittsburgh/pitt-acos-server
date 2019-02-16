@@ -603,6 +603,7 @@ api.get('/content/:contentType([a-zA-Z0-9_-]+)/:contentPackage([a-zA-Z0-9_-]+)/:
 });
 
 
+api.get('/ltiservice', (req, res) => console.log(req))
 
 
 
