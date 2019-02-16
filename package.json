@@ -5,8 +5,7 @@
     "node": "10.x"
   },
   "scripts": {
-    "start": "node index.js",
-    "test": "node test.js"
+    "start": "node index.js"
   },
   "dependencies": {
     "acos-annotated": "^0.2.0",

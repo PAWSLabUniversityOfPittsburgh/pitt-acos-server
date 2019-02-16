@@ -488,7 +488,7 @@ var contentPackageAsJSON = function(contentType, contentPackage, filters, expand
       if (expandProtocolUrls) {
         currentContent.protocol_urls = {};
         for (var protocol in handlers.protocols) {
-          currentContent.protocol_urls[protocol] = config.serverAddress + 'acos/' +  protocol + '/' + contentType + '/' + contentPackage + '/' + currentContent.name;
+          currentContent.protocol_urls[protocol] = config.serverAddress + '/' +  protocol + '/' + contentType + '/' + contentPackage + '/' + currentContent.name;
         }
       }
 

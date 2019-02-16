@@ -1,6 +1,6 @@
 var CONFIG = {
     // The address for the server
-    serverAddress: 'http://localhost:4003/acos/',
+    serverAddress: 'http://localhost:4003/',
 	ltiKeys: {consumerKey: process.env.CONSUMER_KEY, consumerSecret: process.env.CONSUMER_SECRET},
 	
     // Location for log files. The path will be relative to this directory.
