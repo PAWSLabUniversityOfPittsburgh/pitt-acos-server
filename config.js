@@ -1,7 +1,8 @@
 var CONFIG = {
     // The address for the server
     serverAddress: 'http://localhost:4003/',
-	ltiKeys: {consumerKey: process.env.CONSUMER_KEY, consumerSecret: process.env.CONSUMER_SECRET},
+	//ltiKeys: {consumerKey: process.env.CONSUMER_KEY, consumerSecret: process.env.CONSUMER_SECRET},
+	ltiKeys: {consumerKey: '3UUi8kkiiO', consumerSecret: 'UaLFliTE6v'},
 	
     // Location for log files. The path will be relative to this directory.
     // If the path starts with a slash, it will be considered as an absolute path.
