@@ -35,7 +35,7 @@ build/Release
 
 # Dependency directories
 node_modules/*
-!node_modules/acos-*/
+#!node_modules/acos-*/
 jspm_packages/
 
 # TypeScript v1 declaration files

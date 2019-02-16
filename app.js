@@ -43,7 +43,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(compression());
-app.use('/acos/', express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // ********************************************************************************
 // ACOS code begins
@@ -84,7 +84,7 @@ var initPackage = function(name, package) {
     if (package.register) {
       package.register(handlers, app, config);
       // Serve static content that is inside the installed package
-      app.use('/acos/static/' + package.namespace, express.static(__dirname + '/node_modules/' + name + '/static'));
+      app.use('/static/' + package.namespace, express.static(__dirname + '/node_modules/' + name + '/static'));
       console.log('[ACOS Server] ' + 'INFO:'.green +
         ' Package ' + name.yellow + ' is installed.');
     } else {
@@ -165,8 +165,8 @@ Object.keys(handlers.contentTypes).forEach(function(contentType) {
 // Prioritize API URLs
 var api = express.Router();
 var pitt_router = express.Router();
-app.use('/acos/api/v1', api);
-app.use('/acos',pitt_router)
+app.use('/api/v1', api);
+app.use(pitt_router)
 // ********************************************************************************
 
 // ********************************************************************************
@@ -687,7 +687,7 @@ app.use(function(err, req, res, next) {
 
 //All requests to root
 app.get('*', function(req, res) {
-	res.redirect('/acos/' + req.originalUrl);  
+	res.redirect('/' + req.originalUrl);  
 });
 
 
