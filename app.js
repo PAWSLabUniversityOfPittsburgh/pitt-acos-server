@@ -199,8 +199,6 @@ pitt_router.get(getUrlPrefix, function(req, res) {
 
 pitt_router.post(getUrlPrefix + '/event', handle_event);
 
-pitt_router.post('/ltiservice', (req, res) => console.log(req.body))
-
 
 function serve_content(req,res,resource_name) {
 	if (handlers.protocols[req.params.protocol] && handlers.contentTypes[req.params.contentType] && handlers.contentPackages[req.params.contentPackage]) {
