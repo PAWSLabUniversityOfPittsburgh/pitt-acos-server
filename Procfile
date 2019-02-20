@@ -1,1 +1,1 @@
-web: node --inspect=9090 index.js
+web: node --inspect-brk=9090 index.js
