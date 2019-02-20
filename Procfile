@@ -1,1 +1,1 @@
-web: node --inspect-brk index.js
+web: node index.js
