@@ -17,7 +17,7 @@
     "acos-jsvee-java": "github:acos-server/acos-jsvee-java",
     "acos-jsvee-python": "github:acos-server/acos-jsvee-python",
     "acos-logging-keygenerator": "^0.1.4",
-    "acos-lti": "github:acos-server/acos-lti",
+    "acos-lti": "github:cskamil/acos-lti",
     "acos-pitt": "github:acos-server/acos-pitt",
     "archiver": "^2.0.0",
     "atob": ">=2.1.0",
