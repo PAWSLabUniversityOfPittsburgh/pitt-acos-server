@@ -19,6 +19,8 @@ var archiver = require('archiver');
 var crypto = require('crypto');
 var _ = require('lodash');
 var cors = require('cors')
+var parser = require('xml2json');
+
 
 var app = express();
 
@@ -46,6 +48,7 @@ app.use(cookieParser());
 app.use(compression());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors())
+
 
 // ********************************************************************************
 // ACOS code begins
@@ -198,6 +201,12 @@ pitt_router.post(postUrlPrefix, function(req, res) {
 });
 
 pitt_router.post(postUrlPrefix + '/event', handle_event);
+
+var ltiConfigPrefix = '/lti/:contentType([a-zA-Z0-9_-]+)/:contentPackage([a-zA-Z0-9_-]+)/lticonfig.xml'
+
+pitt_router.get(ltiConfigPrefix, function(req,res) {
+  renderLTIXmlConfig(req, res)
+})
 
 // URLs are, for example, /html/jsparsons/jsparsons-python/ps_hello
 var getUrlPrefix = '/:protocol([a-zA-Z0-9_-]+)/:contentType([a-zA-Z0-9_-]+)/:contentPackage([a-zA-Z0-9_-]+)/:name([a-zA-Z0-9_-]+)';
@@ -377,6 +386,27 @@ function serve_content(req,res,resource_name) {
 	  res.status(404).send('Unsupported request!');
   }
 
+}
+
+function renderLTIXmlConfig(req, res) {
+  fs.readFile(path.join(__dirname , 'public/lticonfig.xml'), function(err, data) {
+    var xmlJson = JSON.parse(parser.toJson(data, {reversible: true}));
+
+    var launch_url = req.protocol + '://' + req.get('host') + '/lti/' + req.params.contentType + '/' + req.params.contentPackage
+
+    xmlJson.cartridge_basiclti_link['blti:launch_url'].$t = launch_url
+
+    xmlJson.cartridge_basiclti_link['blti:extensions']['lticm:options'].forEach( option => {
+      option['lticm:property'].forEach(prop => {
+        if(prop.name==='url') {
+          prop.$t = launch_url
+        }
+      })
+    })
+
+    res.contentType('application/xml')
+    res.send(parser.toXml(JSON.stringify(xmlJson)))
+  })
 }
 
 function handle_event(req, res) {
