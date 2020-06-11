@@ -47,6 +47,6 @@ a.toggleContent {
 
 
 
-.js-showContent {
+.js-showContent .js-selectContent {
   margin-top: 10px;
 }

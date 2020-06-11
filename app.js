@@ -18,6 +18,7 @@ var nunjucks = require('nunjucks');
 var archiver = require('archiver');
 var crypto = require('crypto');
 var _ = require('lodash');
+var cors = require('cors')
 
 var app = express();
 
@@ -44,6 +45,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(compression());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cors())
 
 // ********************************************************************************
 // ACOS code begins
@@ -178,12 +180,18 @@ pitt_router.get(resource_name_urlPrefix, function(req, res) {
 	serve_content(req,res,req.query.resource_name)
 });
 
+//This is added to serve requests like: /html/jsparsons/jsparsons-python?resource_name=ps_hello over post requiest (mostly for LTI protocol)
+pitt_router.post(resource_name_urlPrefix, function(req, res) {
+	serve_content(req,res,req.query.resource_name)
+});
+
 // ********************************************************************************
 // Event handling
 pitt_router.post(resource_name_urlPrefix + '/event', handle_event);
 
-
-// URLs are, for example, /html/jsparsons/jsparsons-python/
+//I think this route should be removed as there is no way to specify content name in Canvas without changing the base url
+// OpenDSA integration done using resource_link_title which turns out that it is a custom way. Should get the name through URL parameter
+// URLs are, for example, /html/jsparsons/jsparsons-python/ where no resource name provided through url parameter (mostly for lti protocol)
 var postUrlPrefix = '/:protocol([a-zA-Z0-9_-]+)/:contentType([a-zA-Z0-9_-]+)/:contentPackage([a-zA-Z0-9_-]+)';
 pitt_router.post(postUrlPrefix, function(req, res) {
 	serve_content(req,res,req.body.resource_link_title)
@@ -199,26 +207,134 @@ pitt_router.get(getUrlPrefix, function(req, res) {
 
 pitt_router.post(getUrlPrefix + '/event', handle_event);
 
+//TODO: Need to allow protocol packages or other packages to extend global router with their own functions. 
+pitt_router.post('/lti/submit_content_item_form', function(req, res) {
+  //submit_content_item_form(req, res)
+
+  var content_item_return_url = req.body.content_item_return_url
+  var selected_content_name = req.body.selected_content
+  var consumer_key = req.body.oauth_consumer_key
+
+  var launch_url = req.body.content_url_base + '?resource_name=' + selected_content_name
+
+  var contentItems = {
+    '@context' : 'http://purl.imsglobal.org/ctx/lti/v1/ContentItem',
+    '@graph': [
+        {
+            '@type' : 'LtiLinkItem',
+            '@id': selected_content_name,
+            mediaType: 'application/vnd.ims.lti.v1.ltilink',
+            title: 'ACOS ' + selected_content_name,
+            text: 'ACOS ' + selected_content_name + ' content',
+            url: launch_url,
+            placementAdvice : {
+                displayWidth : '800',
+                displayHeight : '600',
+                presentationDocumentTarget : 'iframe'
+            }
+        }
+    ]
+  };
+
+  var nonce = crypto.randomBytes(16).toString('base64');
+  var responseObject = {
+    lti_message_type: 'ContentItemSelection',
+    lti_version: 'LTI-1p0',
+    content_items: JSON.stringify(contentItems),
+    oauth_version: '1.0',
+    oauth_nonce: nonce,
+    oauth_timestamp: getUnixTimestamp(),
+    oauth_consumer_key: consumer_key,
+    oauth_callback: 'about:blank',
+    oauth_signature_method: 'HMAC-SHA1'
+  };
+
+  //TODO: Need to retrieve it from a storage
+  var consumer_secret = '$2a$10$DU9AhVQc5KuSQbMPT7o5Q.FyIl0WfcMcEJPpphEJleLHbqEinG3zm' 
+
+  responseObject.oauth_signature = 
+    generate_auth_signature(content_item_return_url, responseObject,consumer_secret)
+
+  var formData = {
+    responseObject: responseObject,
+    content_item_return_url: content_item_return_url
+  }
+  res.render('content_selection_form.html', formData)
+});
+
+function generate_auth_signature (url, requestBody, secret) {
+  let signatureBaseString = 'POST&' + encodeURIComponent(url) + '&';
+  let first = true;
+
+  for (const key of Object.keys(requestBody).sort()) {
+      if( key === 'oauth_signature' ){
+          continue;
+      }
+      if (!first){
+          signatureBaseString += encodeURIComponent('&' + key + '=' + encodeURIComponent(requestBody[key]));
+      } else {
+          signatureBaseString += encodeURIComponent(key + '=' + encodeURIComponent(requestBody[key]));
+          first = false;
+      }
+  }
+  signatureBaseString = signatureBaseString
+      .replace(/\!/g, '%2521')
+      .replace(/\*/g, '%252A')
+      .replace(/'/g, '%2527')
+      .replace(/\(/g, '%2528')
+      .replace(/\)/g, '%2529')
+      .replace(/%5B/g, '%255B')
+      .replace(/%40/g, '%2540')
+      .replace(/%5D/g, '%255D');
+
+  secret = encodeURIComponent(secret)
+  
+  const computedSignature = crypto.createHmac('sha1', secret + '&').update(signatureBaseString).digest('base64');
+  
+  return computedSignature;
+}
+
+function special_encode(string) {
+  return encodeURIComponent(string).replace(/[!'()]/g, escape).replace(/\*/g, '%2A');
+};
+
+function getUnixTimestamp() {
+  const unix = Math.round(+new Date()/1000);
+  return unix;
+}
+
+function submit_content_item_form(req, res) {
+  if (handlers.protocols['lti']) {
+    handlers.protocols['lti'].submit_content_item_form(req, res, handlers);
+  } else {
+    res.status(404).send('LTI protocol not supported!');
+  }
+}
 
 function serve_content(req,res,resource_name) {
 	if (handlers.protocols[req.params.protocol] && handlers.contentTypes[req.params.contentType] && handlers.contentPackages[req.params.contentPackage]) {
     var params = {
-      'name': resource_name || '', // name of the requested exercise
+      'type': 'serve_content', // one from [serve_content, show_front_page, content_selection]
+      'name': resource_name, // name of the requested exercise
       'headContent': '', // required additions to HTML head section
       'bodyContent': '' // required additions to HTML body section
     };
 
     var sendResponse = function() {
-
       if (!params.error) {
 
         if (app.get('env') === 'development') {
           console.log('[ACOS Server] ' + 'INFO:'.green + ' Content requested => protocol: ' + req.params.protocol.yellow +
             ', content type: ' + req.params.contentType.yellow +
             ', content package: ' + req.params.contentPackage.yellow +
-            ', name: ' + resource_name.yellow);
+            ', name: ' + resource_name);
         }
-        res.render('content.html', params);
+
+        if(params.name && params.type === 'serve_content') {
+          res.render('content.html', params);
+        } else if(params.type == 'content_selection') {
+          res.render('content_selection.html', params)
+        }
 
       } else {
 
@@ -226,7 +342,7 @@ function serve_content(req,res,resource_name) {
           console.log('[ACOS Server] ' + 'ERROR:'.red + ' Initialization failed => protocol: ' + req.params.protocol.yellow +
             ', content type: ' + req.params.contentType.yellow +
             ', content package: ' + req.params.contentPackage.yellow +
-            ', name: ' + resource_name.yellow);
+            ', name: ' + resource_name);
         }
         res.status(404).send('Initialization failed!');
       }
@@ -258,7 +374,7 @@ function serve_content(req,res,resource_name) {
     }
 
   } else {
-	res.status(404).send('Unsupported request!');
+	  res.status(404).send('Unsupported request!');
   }
 
 }
@@ -326,29 +442,30 @@ function handle_event(req, res) {
 
 // ********************************************************************************
 // Front page
-pitt_router.get('/', function(req, res) {
+pitt_router.get('/', render_front_page);
 
-  var params = { 'protocols': [], 'contentTypes': [], 'contentPackages': [], 'tools': [] };
+function render_front_page(req, res) {
+    var params = { 'protocols': [], 'contentTypes': [], 'contentPackages': [], 'tools': [] };
+  
+    for (var protocol in handlers.protocols) {
+      params.protocols.push(protocol);
+    }
+  
+    for (var contentType in handlers.contentTypes) {
+      params.contentTypes.push(contentType);
+    }
+  
+    for (var contentPackage in handlers.contentPackages) {
+      params.contentPackages.push(handlers.contentPackages[contentPackage]);
+    }
+  
+    for (var tool in handlers.tools) {
+      params.tools.push(tool);
+    }
+  
+    res.render('index.html', params);
+}
 
-  for (var protocol in handlers.protocols) {
-    params.protocols.push(protocol);
-  }
-
-  for (var contentType in handlers.contentTypes) {
-    params.contentTypes.push(contentType);
-  }
-
-  for (var contentPackage in handlers.contentPackages) {
-    params.contentPackages.push(handlers.contentPackages[contentPackage]);
-  }
-
-  for (var tool in handlers.tools) {
-    params.tools.push(tool);
-  }
-
-  res.render('index.html', params);
-
-});
 
 // ********************************************************************************
 // Getting logs
