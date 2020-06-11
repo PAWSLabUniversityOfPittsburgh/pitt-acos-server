@@ -259,7 +259,7 @@ pitt_router.post('/lti/submit_content_item_form', function(req, res) {
   };
 
   //TODO: Need to retrieve it from a storage
-  var consumer_secret = '$2a$10$DU9AhVQc5KuSQbMPT7o5Q.FyIl0WfcMcEJPpphEJleLHbqEinG3zm' 
+  var consumer_secret = config.ltiKeys.consumerSecret
 
   responseObject.oauth_signature = 
     generate_auth_signature(content_item_return_url, responseObject,consumer_secret)
