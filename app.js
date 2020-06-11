@@ -185,7 +185,12 @@ pitt_router.get(resource_name_urlPrefix, function(req, res) {
 
 //This is added to serve requests like: /html/jsparsons/jsparsons-python?resource_name=ps_hello over post requiest (mostly for LTI protocol)
 pitt_router.post(resource_name_urlPrefix, function(req, res) {
-	serve_content(req,res,req.query.resource_name)
+  if(req.query.resource_name) {
+    serve_content(req,res,req.query.resource_name)
+  } else {
+    serve_content(req,res,req.body.resource_link_title)
+  }
+	
 });
 
 // ********************************************************************************
@@ -195,12 +200,12 @@ pitt_router.post(resource_name_urlPrefix + '/event', handle_event);
 //I think this route should be removed as there is no way to specify content name in Canvas without changing the base url
 // OpenDSA integration done using resource_link_title which turns out that it is a custom way. Should get the name through URL parameter
 // URLs are, for example, /html/jsparsons/jsparsons-python/ where no resource name provided through url parameter (mostly for lti protocol)
-var postUrlPrefix = '/:protocol([a-zA-Z0-9_-]+)/:contentType([a-zA-Z0-9_-]+)/:contentPackage([a-zA-Z0-9_-]+)';
-pitt_router.post(postUrlPrefix, function(req, res) {
-	serve_content(req,res,req.body.resource_link_title)
-});
+// var postUrlPrefix = '/:protocol([a-zA-Z0-9_-]+)/:contentType([a-zA-Z0-9_-]+)/:contentPackage([a-zA-Z0-9_-]+)';
+// pitt_router.post(postUrlPrefix, function(req, res) {
+// 	serve_content(req,res,req.body.resource_link_title)
+// });
 
-pitt_router.post(postUrlPrefix + '/event', handle_event);
+// pitt_router.post(postUrlPrefix + '/event', handle_event);
 
 var ltiConfigPrefix = '/lti/:contentType([a-zA-Z0-9_-]+)/:contentPackage([a-zA-Z0-9_-]+)/lticonfig.xml'
 
@@ -259,7 +264,7 @@ pitt_router.post('/lti/submit_content_item_form', function(req, res) {
   };
 
   //TODO: Need to retrieve it from a storage
-  var consumer_secret = config.ltiKeys.consumerSecret
+  var consumer_secret = config.ltiKeys.consumerSecret 
 
   responseObject.oauth_signature = 
     generate_auth_signature(content_item_return_url, responseObject,consumer_secret)
