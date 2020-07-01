@@ -6,11 +6,6 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 var app = require('./app');
 var debug = require('debug')('myapp:server');
 var http = require('http');
-const https = require('https');
-var fs = require('fs');
-
-// const key = fs.readFileSync('./key.pem');
-// const cert = fs.readFileSync('./cert.pem');
 
 /**
  * Get port from environment and store in Express.
@@ -23,7 +18,6 @@ app.set('port', port);
  * Create HTTP server.
  */
 
-// const server = https.createServer({key: key, cert: cert }, app);
 var server = http.createServer(app);
 
 /**
