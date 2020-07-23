@@ -432,7 +432,7 @@ function renderLTIXmlConfig(req, res) {
   fs.readFile(path.join(__dirname , 'public/lticonfig.xml'), function(err, data) {
     var xmlJson = JSON.parse(parser.toJson(data, {reversible: true}));
 
-    var launch_url = req.protocol + '://' + req.get('host') + '/lti/' + req.params.contentType + '/' + req.params.contentPackage
+    var launch_url = req.protocol + '://' + req.get('host') + '/lti/launch'
 
     xmlJson.cartridge_basiclti_link['blti:launch_url'].$t = launch_url
 
