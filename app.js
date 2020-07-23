@@ -193,6 +193,41 @@ pitt_router.post(resource_name_urlPrefix, function(req, res) {
 	
 });
 
+pitt_router.post('/:protocol([a-zA-Z0-9_-]+)/launch', function(req,res) {
+  if (handlers.protocols[req.params.protocol]) {
+    var params = {
+      'type': 'serve_content', // one from [serve_content, show_front_page, content_selection]
+      'name': 'none', // name of the requested exercise
+      'headContent': '', // required additions to HTML head section
+      'bodyContent': '' // required additions to HTML body section
+    };
+
+    var sendResponse = function() {
+      if (!params.error) {
+
+        if (app.get('env') === 'development') {
+          console.log('[ACOS Server] ' + 'INFO:'.green + ' launch requested => protocol: ' + req.params.protocol.yellow);
+        }
+
+        if(params.name && params.type === 'serve_content') {
+          res.render('content.html', params);
+        } else if(params.type == 'content_selection') {
+          res.render('content_selection.html', params)
+        }
+
+      } else {
+
+        if (app.get('env') === 'development') {
+          console.log('[ACOS Server] ' + 'ERROR:'.red + ' Initialization failed => protocol: ' + req.params.protocol.yellow);
+        }
+        res.status(404).send('Initialization failed!');
+      }
+    };
+
+    handlers.protocols[req.params.protocol].initialize(req, params, handlers, sendResponse);
+  }
+})
+
 // ********************************************************************************
 // Event handling
 pitt_router.post(resource_name_urlPrefix + '/event', handle_event);
@@ -207,7 +242,7 @@ pitt_router.post(resource_name_urlPrefix + '/event', handle_event);
 
 // pitt_router.post(postUrlPrefix + '/event', handle_event);
 
-var ltiConfigPrefix = '/lti/:contentType([a-zA-Z0-9_-]+)/:contentPackage([a-zA-Z0-9_-]+)/lticonfig.xml'
+var ltiConfigPrefix = '/lti/lticonfig.xml'
 
 pitt_router.get(ltiConfigPrefix, function(req,res) {
   renderLTIXmlConfig(req, res)

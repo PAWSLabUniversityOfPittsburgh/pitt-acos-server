@@ -8,8 +8,6 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "acos-annotated": "^0.2.0",
-    "acos-annotated-demo": "~0.1.0",
     "acos-html": "^0.2.0",
     "acos-jsparsons": "github:acos-server/acos-jsparsons",
     "acos-jsparsons-python": "github:acos-server/acos-jsparsons-python",
