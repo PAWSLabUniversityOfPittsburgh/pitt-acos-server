@@ -8,6 +8,8 @@
     "start": "node index.js"
   },
   "dependencies": {
+    "acos-combo": "github:acos-server/acos-combo",
+    "acos-combo-python": "github:acos-server/acos-combo-python",
     "acos-html": "^0.2.0",
     "acos-jsparsons": "github:acos-server/acos-jsparsons",
     "acos-jsparsons-python": "github:acos-server/acos-jsparsons-python",
