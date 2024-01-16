@@ -80,3 +80,4 @@ typings/
 
 *.pem
 *.code-workspace
+node_modules_old/*
