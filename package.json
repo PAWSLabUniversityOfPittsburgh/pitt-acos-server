@@ -44,7 +44,7 @@
     "xmlbuilder": "^15.1.1"
   },
   "devDependencies": {
-    "webdriverio": "~3.4.0",
+    "webdriverio": "~8.32.3",
     "chai": "~3.5.0"
   },
   "keywords": [
