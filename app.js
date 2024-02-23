@@ -391,7 +391,8 @@ function serve_content(req,res,resource_name) {
           console.log('[ACOS Server] ' + 'ERROR:'.red + ' Initialization failed => protocol: ' + req.params.protocol.yellow +
             ', content type: ' + req.params.contentType.yellow +
             ', content package: ' + req.params.contentPackage.yellow +
-            ', name: ' + resource_name);
+            ', name: ' + resource_name +
+            ', error:' + params.error);
         }
         res.status(404).send('Initialization failed!');
       }
