@@ -6,4 +6,4 @@ This version is created to mainly enhance the LTI capabilities of the ACOS serve
 
 This version serves multiple content through LTI protocol and can be accessed from Canvas or any other LMS with LTI support. 
 
-Currently, this version is running at Virginia Tech and can be accessed at [here](https://acos.cs.vt.edu/)https://acos.cs.vt.edu/.
+Currently, this version is running at Virginia Tech and can be accessed at [here](https://acos.cs.vt.edu/).
