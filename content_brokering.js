@@ -100,7 +100,7 @@ var export_all_content = function() {
             var catalog_object = {
                 platform_name: 'ACOS server',
                 url: config.serverAddress,
-                lti_instructions_url: lti_installed ? config.serverAddress + '/lti_instructions':'LTI protocol not installed',
+                lti_instructions_url: lti_installed ? config.serverAddress + '/lti/instructions':'LTI protocol not installed',
                 exercise_type: package.meta.name,
                 license:package.meta.license,
                 description: all_content[content]['description'],

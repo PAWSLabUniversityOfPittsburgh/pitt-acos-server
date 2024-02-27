@@ -512,7 +512,7 @@ function render_front_page(req, res) {
     res.render('index.html', params);
 }
 
-pitt_router.get('/lti/lti_instructions', function(req,res){
+pitt_router.get('/lti/instructions', function(req,res){
   res.render('lti_instructions.html');
 });
 
