@@ -1,6 +1,6 @@
 var CONFIG = {
     // The address for the server
-    serverAddress: 'http://localhost:4003/',
+    serverAddress: 'http://localhost:4003',
 	//ltiKeys: {consumerKey: process.env.CONSUMER_KEY, consumerSecret: process.env.CONSUMER_SECRET},
     ltiKeys: {consumerKey: 'kaa108@pitt.edu', consumerSecret: 'abcd'},
     //$2a$10$DU9AhVQc5KuSQbMPT7o5Q.FyIl0WfcMcEJPpphEJleLHbqEinG3zm
@@ -24,6 +24,18 @@ var CONFIG = {
     // searched when the server starts. In order to be auto-discovered,
     // the package name must start with 'acos-'.
     autoDiscovery: true,
+
+    //Content Brokering
+    brokering_api: {
+        api_route_base: '/api/v1',
+        export_content_route: '/export_content',
+        content_types_route: '/content',
+        content_packages_route: '/content/:contentType([a-zA-Z0-9_-]+)',
+        content_route: '/content/:contentType([a-zA-Z0-9_-]+)/:contentPackage([a-zA-Z0-9_-]+)',
+        content_detail_route: '/content/:contentType([a-zA-Z0-9_-]+)/:contentPackage([a-zA-Z0-9_-]+)/:name([a-zA-Z0-9_-]+)',
+        //These fields will be in the response, if the field is available
+        fields: ['name', 'title', 'description', 'author', 'license', 'version', 'created', 'modified', 'keywords', 'concepts']
+    },
 
     // Insert all the installed package names here to use them
     // These are ignored if autoDiscovery is true!

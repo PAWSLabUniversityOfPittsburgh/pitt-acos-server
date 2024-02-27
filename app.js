@@ -21,7 +21,6 @@ var _ = require('lodash');
 var cors = require('cors')
 var parser = require('xml2json');
 
-
 var app = express();
 
 if (app.get('env') !== 'development') {
@@ -140,37 +139,13 @@ if (!config.autoDiscovery) {
 
 }
 
-// Propagate keywords to upper levels
-var keywords = null;
-Object.keys(handlers.contentTypes).forEach(function(contentType) {
-
-  handlers.contentTypes[contentType].meta.keywords = handlers.contentTypes[contentType].meta.keywords || [];
-
-  (handlers.contentTypes[contentType].installedContentPackages || []).forEach(function(contentPackage) {
-
-    contentPackage.meta.keywords = contentPackage.meta.keywords || [];
-
-    Object.keys(contentPackage.meta.contents || []).forEach(function(content) {
-      keywords = contentPackage.meta.contents[content].keywords;
-      if (keywords) {
-        contentPackage.meta.keywords.push.apply(contentPackage.meta.keywords, keywords);
-      }
-    });
-
-    contentPackage.meta.keywords = _.uniq(contentPackage.meta.keywords);
-    handlers.contentTypes[contentType].meta.keywords.push.apply(handlers.contentTypes[contentType].meta.keywords, contentPackage.meta.keywords);
-
-  });
-
-  handlers.contentTypes[contentType].meta.keywords = _.uniq(handlers.contentTypes[contentType].meta.keywords);
-
-});
-
 // ********************************************************************************
 // Prioritize API URLs
-var api = express.Router();
+app.set('json spaces', 2);
 var pitt_router = express.Router();
-app.use('/api/v1', api);
+var content_brokering = require('./content_brokering') //Content brokering api
+content_brokering.init(handlers)
+app.use(config.brokering_api.api_route_base, content_brokering);
 app.use(pitt_router)
 // ********************************************************************************
 
@@ -183,7 +158,7 @@ pitt_router.get(resource_name_urlPrefix, function(req, res) {
 	serve_content(req,res,req.query.resource_name)
 });
 
-//This is added to serve requests like: /html/jsparsons/jsparsons-python?resource_name=ps_hello over post requiest (mostly for LTI protocol)
+//This is added to serve requests like: /html/jsparsons/jsparsons-python?resource_name=ps_hello over post request (for LTI protocol)
 pitt_router.post(resource_name_urlPrefix, function(req, res) {
   if(req.query.resource_name) {
     serve_content(req,res,req.query.resource_name)
@@ -537,6 +512,10 @@ function render_front_page(req, res) {
     res.render('index.html', params);
 }
 
+pitt_router.get('/lti/lti_instructions', function(req,res){
+  res.render('lti_instructions.html');
+});
+
 
 // ********************************************************************************
 // Getting logs
@@ -561,235 +540,6 @@ pitt_router.get('/logs/:logKey([a-z0-9]+)', function(req, res) {
   });
 
 });
-
-
-
-
-
-// ********************************************************************************
-// API
-
-// These fields will be in the response, if the field is available
-var fields = ['name', 'title', 'description', 'author', 'license', 'version', 'created', 'modified', 'keywords', 'concepts'];
-
-var contentTypesAsJSON = function(filters, expand) {
-  var contentTypes = [];
-  var allContentTypes = handlers.contentTypes;
-
-  Object.keys(allContentTypes).forEach(function(key) {
-
-    if (filters.keyword && allContentTypes[key].meta.keywords.indexOf(filters.keyword) < 0) {
-      return;
-    }
-
-    if (filters.author && (allContentTypes[key].meta.author || '') !== filters.author) {
-      return;
-    }
-
-    var currentContentType = {};
-
-    fields.forEach(function(field) {
-      if (allContentTypes[key].meta[field]) {
-        currentContentType[field] = allContentTypes[key].meta[field];
-      }
-    });
-
-    currentContentType.url = config.serverAddress + 'api/v1/content/' + allContentTypes[key].meta.name;
-
-    if (expand) {
-      currentContentType.subitems = contentPackagesAsJSON(key, filters, true);
-    }
-
-    contentTypes.push(currentContentType);
-
-  });
-
-  return contentTypes;
-
-};
-
-var contentPackagesAsJSON = function(contentType, filters, expand) {
-  if (handlers.contentTypes[contentType]) {
-    var contentPackages = [];
-    var packages = handlers.contentTypes[contentType].installedContentPackages;
-
-    packages.forEach(function(package) {
-
-      if (filters.keyword && package.meta.keywords.indexOf(filters.keyword) < 0) {
-        return;
-      }
-
-      if (filters.author && package.meta.author !== filters.author) {
-        return;
-      }
-
-      var currentPackage = {};
-
-      fields.forEach(function(field) {
-        if (package.meta[field]) {
-          currentPackage[field] = package.meta[field];
-        }
-      });
-
-      currentPackage.url = config.serverAddress + 'api/v1/content/' + contentType + '/' + package.meta.name;
-
-      if (expand) {
-        currentPackage.subitems = contentPackageAsJSON(contentType, package.meta.name, filters, true, false);
-      }
-
-      contentPackages.push(currentPackage);
-    });
-    return contentPackages;
-  } else {
-    return null;
-  }
-};
-
-var contentPackageAsJSON = function(contentType, contentPackage, filters, expand, expandProtocolUrls) {
-  if (handlers.contentPackages[contentPackage]) {
-
-    var allContent = handlers.contentPackages[contentPackage].meta.contents || [];
-    var content = [];
-
-    Object.keys(allContent).forEach(function(key) {
-
-      if (filters.keyword && (allContent[key].keywords || []).indexOf(filters.keyword) < 0) {
-        return;
-      }
-
-      if (filters.author && (allContent[key].author || handlers.contentPackages[contentPackage].meta.author) !== filters.author) {
-        return;
-      }
-
-      var currentContent = {};
-
-      fields.forEach(function(field) {
-        if (allContent[key][field]) {
-          currentContent[field] = allContent[key][field];
-        }
-      });
-
-      currentContent.name = key;
-      currentContent.url = config.serverAddress + 'api/v1/content/' + contentType + '/' + contentPackage + '/' + currentContent.name;
-      currentContent.html_url = config.serverAddress + 'html/' + contentType + '/' + contentPackage + '/' + currentContent.name;
-
-      if (expandProtocolUrls) {
-        currentContent.protocol_urls = {};
-        for (var protocol in handlers.protocols) {
-          currentContent.protocol_urls[protocol] = config.serverAddress + '/' +  protocol + '/' + contentType + '/' + contentPackage + '/' + currentContent.name;
-        }
-      }
-
-      content.push(currentContent);
-    });
-
-    return content;
-
-  } else {
-    return null;
-  }
-};
-
-var contentAsJSON = function(contentType, contentPackage, content, filters, expand, expandProtocolUrls) {
-  if (handlers.contentPackages[contentPackage] && handlers.contentPackages[contentPackage].meta.contents[content]) {
-
-    var exercise = handlers.contentPackages[contentPackage].meta.contents[content];
-
-    var exerciseInfo = {};
-    exerciseInfo.name = content;
-    exerciseInfo.url = config.serverAddress + 'api/v1/content/' + contentType + '/' + contentPackage + '/' + content;
-    exerciseInfo.html_url = config.serverAddress + 'html/' + contentType + '/' + contentPackage + '/' + content;
-
-    fields.forEach(function(field) {
-      if (exercise[field]) {
-        exerciseInfo[field] = exercise[field];
-      }
-    });
-
-    if (expandProtocolUrls) {
-      exerciseInfo.protocol_urls = {};
-      for (var protocol in handlers.protocols) {
-        exerciseInfo.protocol_urls[protocol] = config.serverAddress + protocol + '/' + contentType + '/' + contentPackage + '/' + content;
-      }
-    }
-
-    return exerciseInfo;
-
-  } else {
-    return null;
-  }
-};
-
-var createFilters = function(req) {
-  var filters = {};
-  var allowed = ['keyword', 'author'];
-  allowed.forEach(function(item) {
-    if (req.query[item]) {
-      filters[item] = req.query[item];
-    }
-  });
-  return filters;
-};
-
-// **********************************************
-// API
-
-api.get('/', function(req, res) {
-
-  var endpoints = {
-    content: { url: config.serverAddress + 'api/v1/content', description: 'Lists all available content types' },
-  };
-
-  res.json(endpoints);
-
-});
-
-// All content types
-api.get('/content', function(req, res) {
-  var expand = req.query.expand && (req.query.expand.split(',').indexOf('subitems') > -1 || req.query.expand.split(',').indexOf('children') > -1);
-  var filters = createFilters(req);
-  var response = { contentTypes: contentTypesAsJSON(filters, expand) };
-  res.json(response);
-});
-
-// All content packages in the given content type
-api.get('/content/:contentType([a-zA-Z0-9_-]+)', function(req, res) {
-  var expand = req.query.expand && (req.query.expand.split(',').indexOf('subitems') > -1 || req.query.expand.split(',').indexOf('children') > -1);
-  var filters = createFilters(req);
-  var response = contentPackagesAsJSON(req.params.contentType, filters, expand);
-  if (response) {
-    res.json({ contentPackages: response });
-  } else {
-    res.status(404).json({ 'error': 'Unknown content type.' });
-  }
-});
-
-// All exercises in the given content package
-api.get('/content/:contentType([a-zA-Z0-9_-]+)/:contentPackage([a-zA-Z0-9_-]+)', function(req, res) {
-  var expand = req.query.expand && req.query.expand.split(',').indexOf('subitems') > -1;
-  var expandProtocolUrls = req.query.expand && req.query.expand.split(',').indexOf('protocol_urls') > -1;
-  var filters = createFilters(req);
-  var response = contentPackageAsJSON(req.params.contentType, req.params.contentPackage, filters, expand, expandProtocolUrls);
-  if (response) {
-    res.json({ content: response });
-  } else {
-    res.status(404).json({ 'error': 'Unknown content package.' });
-  }
-});
-
-// Information about the given exercise
-api.get('/content/:contentType([a-zA-Z0-9_-]+)/:contentPackage([a-zA-Z0-9_-]+)/:name([a-zA-Z0-9_-]+)', function(req, res) {
-  var expand = req.query.expand && (req.query.expand.split(',').indexOf('subitems') > -1 || req.query.expand.split(',').indexOf('children') > -1);
-  var expandProtocolUrls = req.query.expand && req.query.expand.split(',').indexOf('protocol_urls') > -1;
-  var filters = createFilters(req);
-  var response = ContentAsJSON(req.params.contentType, req.params.contentPackage, name, filters, expand, expandProtocolUrls);
-  if (response) {
-    res.json({ item: response });
-  } else {
-    res.status(404).json({ 'error': 'Unknown content item.' });
-  }
-});
-
 
 // ********************************************************************************
 // Loggers
@@ -832,10 +582,6 @@ console.log('\n[ACOS Server] ' + 'INFO: Server is running.'.green);
 
 // ********************************************************************************
 // ACOS code ends
-
-
-
-
 
 
 // catch 404 and forward to error handler

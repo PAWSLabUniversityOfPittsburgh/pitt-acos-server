@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="description user_content teacher-version enhanced">
+    <p>ACOS is an open-source advanced content server designed to provide online learning activities to be used in
+        different learning management systems that use different protocols including LTI. It contains multiple content
+        types and learning materials. The current list of available content to be used in Canvas can be checked <a
+            href="https://acos.cs.vt.edu" target="_blank" class="external"
+            rel="noreferrer noopener"><span>here</span></a>.&nbsp;</p>
+    <p><strong>To add ACOS exercises in your Canvas course, please follow the steps below:</strong></p>
+    <ol>
+        <li>Given that the ACOS server is meant to be light-weight and just serving content, currently, it does not
+            support account management services. To obtain a consumer key and secret by sending an email to <a
+                href="mailto:kaa108@pitt.edu" target="_blank">kaa108@pitt.edu</a>.</li>
+        <li>Add ACOS server as an external application.</li>
+    </ol>
+    <p style="padding-left: 40px;">Step 1:&nbsp; Navigate to your course in Canvas and click the "<em>Settings"</em>
+        link from the left sidebar.</p>
+    <p style="padding-left: 40px;"><img src="https://canvas.instructure.com/courses/2062633/files/100274656/preview"
+            alt="2.png" width="641" height="378"
+            data-api-endpoint="https://canvas.instructure.com/api/v1/courses/2062633/files/100274656"
+            data-api-returntype="File"></p>
+    <p style="padding-left: 40px;">Step 2: <span>Go to "</span><em>Apps</em><span>" and click on "</span><em>View App
+            Configurations</em><span>". Note that your institution's version of Canvas might display differently.</span>
+    </p>
+    <p style="padding-left: 40px;"><span><img
+                src="https://canvas.instructure.com/courses/2062633/files/100274658/preview" alt="3.png" width="621"
+                height="390" data-api-endpoint="https://canvas.instructure.com/api/v1/courses/2062633/files/100274658"
+                data-api-returntype="File"></span></p>
+    <p style="padding-left: 40px;"><span>Step 3: Click on the "<em>+App</em>" button.&nbsp;</span></p>
+    <p style="padding-left: 40px;"><span><img
+                src="https://canvas.instructure.com/courses/2062633/files/100274659/preview" alt="4.png" width="622"
+                height="373" data-api-endpoint="https://canvas.instructure.com/api/v1/courses/2062633/files/100274659"
+                data-api-returntype="File"></span></p>
+    <p style="padding-left: 40px;"><span>Step 4: From configuration type, select <em>"By URL" option.&nbsp;</em></span>
+    </p>
+    <p style="padding-left: 40px;"><span><img
+                src="https://canvas.instructure.com/courses/2062633/files/100274660/preview" alt="5.png" width="615"
+                height="418" data-api-endpoint="https://canvas.instructure.com/api/v1/courses/2062633/files/100274660"
+                data-api-returntype="File"></span></p>
+    <p style="padding-left: 40px;"><span>Step 5: Paste your consumer key and the shared secret that you obtained in Step
+            1.&nbsp;</span><span>After that, paste <a href="https://acos.cs.vt.edu/lti/lticonfig.xml" target="_blank"
+                class="external" rel="noreferrer noopener"><span>https://acos.cs.vt.edu/lti/lticonfig.xml</span></a> under "<em>Config
+                URL</em>". This is the URL to the XML configuration for ACOS Server.</span></p>
+    <p style="padding-left: 40px;"><img style="font-family: inherit; font-size: 1rem;"
+            src="https://canvas.instructure.com/courses/2062633/files/101779754/preview"
+            alt="Screen Shot 2020-07-22 at 7.05.22 PM.png" width="651" height="306"
+            data-api-endpoint="https://canvas.instructure.com/api/v1/courses/2062633/files/101779754"
+            data-api-returntype="File"></p>
+    <p style="padding-left: 40px;">Step 6: After you hit submit, you will be able to see ACOS Server as an external tool
+        option while creating your graded or ungraded learning activities.</p>
+</div>
+
+{% endblock %}
