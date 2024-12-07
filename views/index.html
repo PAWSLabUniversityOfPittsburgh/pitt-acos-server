@@ -31,14 +31,16 @@
             <h3 class="packageTitle bg-primary">{{ contentPackage.namespace }}</h3>
             <div class="contentPackageMain">
                 <p>{{ contentPackage.meta.shortDescription }}</p>
-            
-            
                 <div class="teaserContent">
                     <ul>        
                     {% for ex in contentPackage.meta.teaserContent %}
                         <li>
                             <a href="/html/{{ contentPackage.contentTypeNamespace }}/{{ contentPackage.namespace }}/{{ ex }}">
-                                {{ ex }}
+                                {% if contentPackage.meta.contents[ex].title %}    
+                                    {{contentPackage.meta.contents[ex].title}}
+                                {% else %}  
+                                    {{ex}}
+                                {% endif %}
                            </a>
                        </li>
                     {% endfor %}
@@ -50,7 +52,11 @@
                     {% for ex, content in contentPackage.meta.contents %}
                         <li>
                             <a href="/html/{{ contentPackage.contentTypeNamespace }}/{{ contentPackage.namespace }}/{{ ex }}">
-                                {{ ex }}
+                                {% if content.title %}    
+                                 {{content.title}}
+                                {% else %}  
+                                    {{ex}}
+                                {% endif %}
                            </a>
                        </li>
                     {% endfor %}
